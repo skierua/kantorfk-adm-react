@@ -1,12 +1,12 @@
 // for local testings
-const PATH_TO_SSE = "http://localhost/api/v4/sse"; // for local testings
-const PATH_TO_SERVER = "http://localhost/api/v4"; // for local testings
+// const PATH_TO_SSE = "http://localhost/api/v4/sse"; // for local testings
+// const PATH_TO_SERVER = "http://localhost/api/v4"; // for local testings
 
 // for deployment
 // const PATH_TO_SERVER = "/api/v3"; // for deployment
 // const PATH_TO_SSE = "/v3/sse"; // for deployment
-// const PATH_TO_SERVER = "https://adm.kantorfk.com/api/v3"; // for deployment
-// const PATH_TO_SSE = "https://adm.kantorfk.com/api/v3/sse"; // for deployment
+const PATH_TO_SERVER = "https://adm.kantorfk.com/api/v3"; // for deployment
+const PATH_TO_SSE = "https://adm.kantorfk.com/api/v3/sse"; // for deployment
 
 /**
  * payload
