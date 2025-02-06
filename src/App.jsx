@@ -7,9 +7,9 @@ import React, { useEffect, useState } from "react";
 import { Alert, Container, Stack, Typography } from "@mui/material";
 // import { Avatar, Box, Button, CssBaseline } from "@mui/material";
 
-import { Sign } from "./Sign";
-import { authFetch, saveToken } from "./driver";
-import { subscribe, unsubscribe } from "./events";
+import { Sign } from "./Sign.js";
+import { authFetch, saveToken } from "./driver.js";
+import { subscribe, unsubscribe } from "./events.js";
 import { AdmMain } from "./components/adm/Main.jsx";
 import { Main as KntMain } from "./components/knt/Main.jsx";
 
