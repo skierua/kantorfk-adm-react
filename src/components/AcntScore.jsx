@@ -31,7 +31,7 @@ import { VkToggle } from "./VkToggle";
  * @returns
  */
 export const AcntScore = (props) => {
-  const { data, balacnt, onlyShift, showTurn, ...other } = props;
+  const { data, title, balacnt, onlyShift, showTurn, ...other } = props;
   const [knt, setKnt] = useState("");
   const [acnt, setAcnt] = useState("");
 
@@ -151,10 +151,27 @@ export const AcntScore = (props) => {
     // console.log(`#257 AdmOffer/useEffect started`);
     return () => {};
   }, []);
+
   return (
-    <Box sx={{ justifyItems: "center" }} {...other}>
-      {/* <Stack direction={"row"} gap={1}> */}
-      {/* <Box> */}
+    <Box
+      sx={{
+        border: "1px solid lightgrey",
+        width: { xs: "100%", sm: "20rem" },
+        justifyItems: "center",
+      }}
+      {...other}
+    >
+      <Box
+        width="100%"
+        // bgcolor={"lightgrey"}
+        bgcolor={"info.dark"}
+        color={"info.contrastText"}
+        padding={"5px 10px"}
+        sx={{ mb: "0.5rem" }}
+        {...other}
+      >
+        <Typography>{title}</Typography>
+      </Box>
       <Stack
         direction={"row"}
         gap={1}
@@ -314,9 +331,6 @@ const SubTbl = (props) => {
   return (
     <Table size="small" aria-label="shop's amount">
       <TableBody>
-        {/* <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
-            <TableCell padding="none">qqqqqqqq</TableCell>
-          </TableRow> */}
         {tdata.map((v) => {
           return (
             <SubRow

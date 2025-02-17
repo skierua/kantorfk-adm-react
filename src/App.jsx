@@ -10,8 +10,9 @@ import { Alert, Container, Stack, Typography } from "@mui/material";
 import { Sign } from "./Sign.js";
 import { authFetch, saveToken } from "./driver.js";
 import { subscribe, unsubscribe } from "./events.js";
-import { AdmMain } from "./components/adm/Main.jsx";
-import { Main as KntMain } from "./components/knt/Main.jsx";
+import { Main } from "./components/Main.jsx";
+// import { AdmMain } from "./components/adm/Main.jsx";
+// import { Main as KntMain } from "./components/knt/Main.jsx";
 
 function App(props) {
   // const { CD_KANTOR, CD_CURRENCY } = props;
@@ -95,20 +96,18 @@ function App(props) {
     <Container maxWidth="xl">
       <Stack gap={1}>
         {(crntuser == null || crntuser.role === "") && <Sign />}
-        {
+        {token !== "" &&
+          JSON.parse(window.atob(token.split(".")[1])) !== "" && (
+            <Main TOKEN={token} />
+          )}
+        {/* {
           token !== "" &&
             JSON.parse(window.atob(token.split(".")[1])) !== "" &&
             crntuser.role === "owner" && <AdmMain TOKEN={token} />
-          // <Alert severity="error">
-          //   <Typography> works</Typography>
-          // </Alert>
-          // (crntuser.role === "owner" && <AdmMain TOKEN={token} />)(
-          //   crntuser.role === "knt" && <KntMain TOKEN={token} />
-          // )
         }
         {token !== "" &&
           JSON.parse(window.atob(token.split(".")[1])) !== "" &&
-          crntuser.role === "kant" && <KntMain TOKEN={token} />}
+          crntuser.role === "kant" && <KntMain TOKEN={token} />} */}
         {error && (
           <Alert severity="error">
             <Typography> {error}</Typography>

@@ -15,11 +15,44 @@ import { grey } from "@mui/material/colors";
 import { VkToggle } from "./VkToggle";
 
 export const DashRate = (props) => {
-  const { rates, curList, ...other } = props;
+  const { title, rates, curList, kntBulk, ...other } = props;
   const [knt, setKnt] = useState("");
   const [bulk, setBulk] = useState(false);
 
   const dataset = () => {
+    const a = rates.filter(
+      (d) =>
+        d.prc === "" &&
+        (bulk ? d.shop === kntBulk : d.shop !== kntBulk) &&
+        (curList === undefined || curList.length == 0
+          ? true
+          : curList.indexOf(d.chid) != -1)
+    );
+    // console.log(a);
+    return a;
+
+    if (bulk) {
+      if (curList === undefined || curList.length == 0) {
+        return rates.filter((d) => d.prc === "" && d.shop === kntBulk);
+      } else {
+        return rates.filter(
+          (d) =>
+            curList.indexOf(d.chid) != -1 && d.prc === "" && d.shop === kntBulk
+        );
+      }
+    } else {
+      if (curList === undefined || curList.length == 0) {
+        return rates.filter((d) => d.prc === "" && d.shop !== kntBulk);
+      } else {
+        return rates.filter(
+          (d) =>
+            curList.indexOf(d.chid) != -1 && d.prc === "" && d.shop !== kntBulk
+        );
+      }
+    }
+  };
+
+  const datasetOLD = () => {
     if (curList === undefined || curList.length == 0) {
       return rates.filter((d) => d.prc === (bulk ? "bulk" : ""));
     } else {
@@ -47,23 +80,38 @@ export const DashRate = (props) => {
   };
 
   const kntList = () => {
-    let lst = [];
-    rates
-      .filter((d) => d.prc === (bulk ? "bulk" : ""))
-      .forEach((f) => {
-        if (!lst.some((l) => l.id === f.shop)) {
-          lst.push({ id: f.shop, name: f.shop, so: f.shso });
-        }
+    return dataset()
+      .filter(
+        (value, index, array) =>
+          array.findIndex((v) => v.shop === value.shop) === index
+      )
+      .map((f) => {
+        return { id: f.shop, name: f.shop };
       });
-    return lst.sort((a, b) => {
-      return Number(a.so) - Number(b.so);
-    });
   };
 
   //   console.log(dataset());
 
   return (
-    <Box {...other}>
+    <Box
+      sx={{
+        border: "1px solid lightgrey",
+        width: { xs: "100%", sm: "20rem" },
+        justifyItems: "center",
+      }}
+      {...other}
+    >
+      <Box
+        width="100%"
+        // bgcolor={"lightgrey"}
+        bgcolor={"info.dark"}
+        color={"info.contrastText"}
+        padding={"5px 10px"}
+        sx={{ mb: "0.5rem" }}
+        {...other}
+      >
+        <Typography>{title}</Typography>
+      </Box>
       <Stack
         direction={"row"}
         gap={1}
@@ -82,10 +130,19 @@ export const DashRate = (props) => {
           size="small"
           label="ГУРТ"
           value={bulk}
-          onChange={(e) => setBulk(e.target.checked)}
+          onChange={(e) => {
+            setKnt("");
+            setBulk(e.target.checked);
+          }}
         />
       </Stack>
       <Tbl data={dataset()} knt={knt} />
+      {/* <Tbl
+        data={rates.filter(
+          (v) => v.domestic === "2" && v.prc === "" && v.shop !== kntBulk
+        )}
+        knt={knt}
+      /> */}
     </Box>
   );
 };
@@ -129,9 +186,10 @@ const Tbl = (props) => {
                       {knt === "" && (
                         <Typography variant="caption">{v.shop}</Typography>
                       )}
-                      {v.scode !== "" && (
+                      {/* {v.scode !== "" && (
                         <Typography variant="caption">{v.sname}</Typography>
-                      )}
+                      )} */}
+                      <Typography variant="caption">{v.sname}</Typography>
                     </Stack>
                   </TableCell>
                   <TableCell align="center">

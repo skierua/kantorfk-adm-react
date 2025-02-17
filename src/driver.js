@@ -5,8 +5,8 @@
 // for deployment
 // const PATH_TO_SERVER = "/api/v3"; // for deployment
 // const PATH_TO_SSE = "/v3/sse"; // for deployment
-const PATH_TO_SERVER = "https://adm.kantorfk.com/api/v3"; // for deployment
-const PATH_TO_SSE = "https://adm.kantorfk.com/api/v3/sse"; // for deployment
+const PATH_TO_SERVER = "https://kantorfk.com/api/v4"; // for deployment
+const PATH_TO_SSE = "https://kantorfk.com/api/v4/sse"; // for deployment
 
 /**
  * payload

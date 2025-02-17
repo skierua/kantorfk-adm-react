@@ -10,13 +10,14 @@ import Switch from "@mui/material/Switch";
 import CircleIcon from "@mui/icons-material/Circle";
 import EditIcon from "@mui/icons-material/Edit";
 
-import { VkToggle } from "../VkToggle";
+import { VkToggle } from "./VkToggle";
 
 /**
+ * pl payload
  * @returns
  */
 export const Offer = (props) => {
-  const { sqldata, fedit, shop, ...other } = props;
+  const { sqldata, fedit, pl, ...other } = props;
 
   // const { register } = useForm();
 
@@ -65,8 +66,6 @@ export const Offer = (props) => {
         lst.push({
           id: v.shop,
           sname: v.shop,
-          // name: v.name,
-          // so: Number(v.sortorder),
         });
         // }
       }
@@ -115,13 +114,6 @@ export const Offer = (props) => {
           fcb={(v) => setFltknt(v)}
         />
 
-        {/* <FormControlLabel
-          control={<Switch />}
-          size="small"
-          label="Мої"
-          defaultValue={myonly}
-          onChange={(e) => setMyonly(e.target.checked)}
-        /> */}
         <FormControl size="small">
           <Button
             variant="outlined"
@@ -156,85 +148,76 @@ export const Offer = (props) => {
                   minWidth: { xs: "100%", md: 300 },
                 }}
               >
-                <>
-                  {/* {edited !== v.oid && ( */}
-                  <>
-                    <Stack
-                      // width={"100%"}
-                      direction={"row"}
-                      justifyContent={"space-between"}
-                      alignItems={"center"}
-                    >
-                      {v.bidask === "bid" ? (
-                        <CircleIcon fontSize="small" color="success" />
-                      ) : (
-                        <CircleIcon fontSize="small" color="info" />
-                      )}
-                      <Typography>
-                        {v.bidask === "bid" ? "куплю" : "продам"}
-                      </Typography>
-                      <Avatar
-                        alt={v.chid}
-                        src={`./flag/${v.curid}.svg`}
-                        sx={{
-                          width: 24,
-                          height: 24,
-                          border: "solid lightgrey 1px",
-                        }}
-                      />
-                      <Typography>{v.chid}</Typography>
-                      <Typography variant="button" fontSize={"125%"}>
-                        {Number(v.price).toPrecision(4)}
-                      </Typography>
-                      <Typography variant="caption">{hd(v.tm)}</Typography>
-                    </Stack>
-                    <Stack
-                      width={"100%"}
-                      direction={"row"}
-                      justifyContent={"space-between"}
-                      alignItems={"center"}
-                    >
-                      <Typography>{v.name}</Typography>
-                      <Stack direction={"row"} gap={0.5}>
-                        <CallIcon fontSize="small" />
-                        {v.tel}
-                      </Stack>
-                    </Stack>
-                    <Stack
-                      direction={"row"}
-                      gap={0.5}
-                      justifyContent={"space-between"}
-                      alignItems={"center"}
-                    >
-                      <Typography>{`від ${
-                        Math.abs(v.amnt) < 1500 ? "500" : "1 000"
-                      } до ${Math.abs(v.amnt).toLocaleString(
-                        "uk-UA"
-                      )}`}</Typography>
-                      {shop !== v.shop && <Typography>{v.shop}</Typography>}
-                      {shop === v.shop && (
-                        <Button
-                          variant="outlined"
-                          startIcon={<EditIcon />}
-                          onClick={() => fedit(v)}
-                        >
-                          {v.shop}
-                        </Button>
-                      )}
-                    </Stack>
-                    {v.onote !== undefined && v.onote !== "" && (
-                      <Box
-                        bgcolor={"whitesmoke"}
-                        color={"whitesmoke.contrastText"}
-                        p={"2px"}
-                      >
-                        <Typography>{v.onote}</Typography>
-                      </Box>
-                    )}
-                  </>
-                  {/* )} */}
-                  {/* {edited === v.oid && <EditOffer offer={v} />} */}
-                </>
+                <Stack
+                  // width={"100%"}
+                  direction={"row"}
+                  justifyContent={"space-between"}
+                  alignItems={"center"}
+                >
+                  {v.bidask === "bid" ? (
+                    <CircleIcon fontSize="small" color="success" />
+                  ) : (
+                    <CircleIcon fontSize="small" color="info" />
+                  )}
+                  <Typography>
+                    {v.bidask === "bid" ? "куплю" : "продам"}
+                  </Typography>
+                  <Avatar
+                    alt={v.chid}
+                    src={`./flag/${v.curid}.svg`}
+                    sx={{
+                      width: 24,
+                      height: 24,
+                      border: "solid lightgrey 1px",
+                    }}
+                  />
+                  <Typography>{v.chid}</Typography>
+                  <Typography variant="button" fontSize={"125%"}>
+                    {Number(v.price).toPrecision(4)}
+                  </Typography>
+                  <Typography variant="caption">{hd(v.tm)}</Typography>
+                </Stack>
+                <Stack
+                  width={"100%"}
+                  direction={"row"}
+                  justifyContent={"space-between"}
+                  alignItems={"center"}
+                >
+                  <Typography>{v.name}</Typography>
+                  <Stack direction={"row"} gap={0.5}>
+                    <CallIcon fontSize="small" />
+                    {v.tel}
+                  </Stack>
+                </Stack>
+                <Stack
+                  direction={"row"}
+                  gap={0.5}
+                  justifyContent={"space-between"}
+                  alignItems={"center"}
+                >
+                  <Typography>{`від ${
+                    Math.abs(v.amnt) < 1500 ? "500" : "1 000"
+                  } до ${Math.abs(v.amnt).toLocaleString(
+                    "uk-UA"
+                  )}`}</Typography>
+                  <Button
+                    variant="outlined"
+                    startIcon={<EditIcon />}
+                    disabled={!(pl.role === "owner" || pl.term === v.shop)}
+                    onClick={() => fedit(v)}
+                  >
+                    {v.shop}
+                  </Button>
+                </Stack>
+                {v.onote !== undefined && v.onote !== "" && (
+                  <Box
+                    bgcolor={"whitesmoke"}
+                    color={"whitesmoke.contrastText"}
+                    p={"2px"}
+                  >
+                    <Typography>{v.onote}</Typography>
+                  </Box>
+                )}
               </Paper>
             )
           );

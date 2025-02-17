@@ -34,7 +34,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 export const RepProfit = (props) => {
-  const { sqldata, knt, fsubmit } = props;
+  const { sqldata, pl, fsubmit } = props;
   const [period, setPeriod] = useState(new Date());
   const [repo, setRepo] = useState("kntprofit");
 
@@ -119,7 +119,7 @@ export const RepProfit = (props) => {
     pfrom.setMonth(pfrom.getMonth() - 3);
     fsubmit({
       reqid: repo,
-      shop: knt ?? "",
+      shop: pl.role !== "owner" ? pl.term : "",
       from: pfrom.toISOString().substring(0, 7),
       to: pto.toISOString().substring(0, 7),
     });
