@@ -21,8 +21,8 @@ import { VkToggle } from "./VkToggle";
  * @returns
  */
 export const Rate = (props) => {
-  const { sqldata, kantor, shop, fedit, fisedited, frefresh, ...other } = props;
-  const [knt, setKnt] = useState(shop);
+  const { sqldata, kantor, pl, fedit, fisedited, frefresh, ...other } = props;
+  const [knt, setKnt] = useState(pl.term);
 
   // last time change
   const lt = () => {
@@ -56,7 +56,9 @@ export const Rate = (props) => {
           <IconButton
             size="small"
             color="primary"
-            disabled={knt === ""}
+            disabled={
+              knt === "" || (pl.role === "owner" ? false : knt !== pl.term)
+            }
             onClick={() => fedit({ knt: knt })}
           >
             <EditIcon />

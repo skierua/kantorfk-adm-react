@@ -11,14 +11,32 @@ import Typography from "@mui/material/Typography";
 import { grey } from "@mui/material/colors";
 
 export const DashOffer = (props) => {
-  const { offers, ...other } = props;
+  const { title, offers, ...other } = props;
 
   const dataset = (ba) => {
     return offers.filter((v) => v.bidask === ba);
   };
 
   return (
-    <Box {...other}>
+    <Box
+      sx={{
+        border: "1px solid lightgrey",
+        width: { xs: "100%", sm: "20rem" },
+        justifyItems: "center",
+      }}
+      {...other}
+    >
+      <Box
+        width="100%"
+        // bgcolor={"lightgrey"}
+        bgcolor={"info.dark"}
+        color={"info.contrastText"}
+        padding={"5px 10px"}
+        sx={{ mb: "0.5rem" }}
+        {...other}
+      >
+        <Typography>{title}</Typography>
+      </Box>
       <Stack direction={"row"} gap={1}>
         <Box sx={{ justifyItems: "center", width: "50%" }}>
           <Typography color={grey[500]}>куплю</Typography>

@@ -22,6 +22,7 @@ export const RateEdit = (props) => {
     kantor,
     currency,
     cursub,
+    kntBulk,
     crntknt,
     fclose,
     fsubmit,
@@ -31,7 +32,7 @@ export const RateEdit = (props) => {
   // edited data
   const [base, setBase] = useState(crntknt); // base knt for rate
   const [edknt, setEdknt] = useState(() => [crntknt]);
-  const [edbulk, setEdbulk] = useState(false);
+  // const [edbulk, setEdbulk] = useState(false);
   const [edcur, setEdcur] = useState("840");
   const [edcursub, setEdcursub] = useState("");
   const [edqty, setEdqty] = useState("1");
@@ -46,19 +47,25 @@ export const RateEdit = (props) => {
   //   };
 
   const editList = () => {
-    if (role === "kant") return [{ id: crntknt, name: crntknt }];
+    if (role === "kant")
+      return [
+        { id: kntBulk, name: "ГУРТ" },
+        { id: crntknt, name: crntknt },
+      ];
     return kantor;
   };
 
   useEffect(() => {
+    // const shop = edbulk ? kntBulk : base;
     let rate = sqldata.find(
       (v) =>
         v.shop === base &&
         v.atclcode === edcur &&
         v.scode === edcursub &&
-        v.prc === (edbulk ? "bulk" : "")
+        v.prc === ""
+      // && v.prc === (edbulk ? "bulk" : "")
     );
-    // console.log(rate);
+    // console.log(sqldata);
     if (rate !== undefined) {
       setEdqty(rate.cqty);
       setEdbid(rate.bid);
@@ -69,7 +76,7 @@ export const RateEdit = (props) => {
       setEdask("");
     }
     return () => {};
-  }, [base, edcur, edcursub, edbulk]);
+  }, [base, edcur, edcursub]);
 
   const onSubmit = async (e) => {
     // console.log("onSubmit");
@@ -79,7 +86,7 @@ export const RateEdit = (props) => {
         shop: v,
         atclcode: edcur,
         scode: edcursub,
-        pricecode: edbulk ? "bulk" : "",
+        pricecode: "", //edbulk ? "bulk" : "",
         qty: edqty,
         bid: edbid,
         ask: edask,
@@ -94,12 +101,32 @@ export const RateEdit = (props) => {
     });
   };
 
+  const onEdknt_change = (e, v) => {
+    if (!v.length) return "";
+    // console.log("etv=" + e.target.value + " v=" + v);
+    if (e.target.value === kntBulk) {
+      if (v.indexOf(kntBulk) !== -1) {
+        setEdknt([kntBulk]);
+      } else {
+        setEdknt(v);
+      }
+    } else {
+      if (v.indexOf(kntBulk) !== -1) {
+        setEdknt([e.target.value]);
+      } else {
+        setEdknt(v);
+      }
+    }
+    // return v;
+    // return v.length ? setEdknt(v) : "";
+  };
+
   return (
     <Box sx={{ maxWidth: { md: 360 } }} {...other}>
       {/* <form onSubmit={handleSubmit(onSubmit)}> */}
       <form onSubmit={onSubmit}>
         <Stack gap={1}>
-          <Stack direction={"row"} gap={1} flexWrap="wrap">
+          <Stack direction={"row"} gap={1} flexWrap="nowrap">
             <VkToggle
               data={kantor}
               dflt={base}
@@ -108,12 +135,14 @@ export const RateEdit = (props) => {
               allowAll={false}
               fcb={(v) => setBase(v)}
             />
+            {/* {!edbulk && ( */}
             <FormControl sx={{ minWidth: 130 }} size="small">
               <ToggleButtonGroup
                 id="fld-shop-tgl"
                 label="Для"
                 value={edknt}
-                onChange={(e, v) => (v.length ? setEdknt(v) : "")}
+                // onChange={(e, v) => (v.length ? setEdknt(v) : "")}
+                onChange={onEdknt_change}
                 aria-label="knt toggle"
                 size="small"
               >
@@ -131,6 +160,14 @@ export const RateEdit = (props) => {
                 })}
               </ToggleButtonGroup>
             </FormControl>
+            {/* )}  */}
+            {/* <FormControlLabel
+              control={<Switch />}
+              size="small"
+              label="ГУРТ"
+              value={edbulk}
+              onChange={(e) => setEdbulk(e.target.checked)}
+            /> */}
           </Stack>
 
           <Stack direction={"row"} gap={1} justifyContent={"space-between"}>
@@ -166,13 +203,6 @@ export const RateEdit = (props) => {
                 </Select>
               </FormControl>
             )}
-            {/* <FormControlLabel
-              control={<Switch />}
-              size="small"
-              label="ГУРТ"
-              value={edbulk}
-              onChange={(e) => setEdbulk(e.target.checked)}
-            /> */}
           </Stack>
 
           <Stack direction={"row"} gap={1}>

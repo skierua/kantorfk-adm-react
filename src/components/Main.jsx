@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
-import Container from "@mui/material/Container";
 import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
@@ -25,24 +24,43 @@ import Typography from "@mui/material/Typography";
 
 import RefreshIcon from "@mui/icons-material/Refresh";
 
-import { AcntScore } from "../AcntScore";
+import { AcntScore } from "./AcntScore";
+import { Balance } from "./Balance.jsx";
+import { Rate } from "./Rate.jsx";
 import { DashBoard } from "./DashBoard.jsx";
+// import { DashBoard as AdmDash } from "./adm/DashBoard.jsx";
+// import { DashBoard as KntDash } from "./knt/DashBoard.jsx";
 import { Offer } from "./Offer.jsx";
-import { OfferEdit } from "../OfferEdit";
-import { Rate } from "../Rate.jsx";
-import { RateEdit } from "../RateEdit";
-// import { RepAcnt } from "./RepAcnt.jsx";
-import { RepRate } from "../RepRate.jsx";
-import { RepProfit } from "../RepProfit.jsx";
-import { ChartProfit } from "../ChartProfit.jsx";
-// import { DashRate } from "../DashRate";
+import { OfferEdit } from "./OfferEdit";
+import { RateEdit } from "./RateEdit";
+import { RepRate } from "./RepRate.jsx";
+import { RepProfit } from "./RepProfit.jsx";
+// import { RepAcnt } from "./adm/RepAcnt.jsx";
+import { ChartProfit } from "./ChartProfit.jsx";
+// import { DashRate } from "./DashRate";
 
 // import { subscribe, unsubscribe } from "../../events";
-import { PATH_TO_SSE, getData, postData, pld } from "../../driver";
+import { PATH_TO_SSE, getData, postData, pld } from "../driver";
 // import { CD_KANTOR } from "../../constData";
 
 const drawerWidth = 180;
-const interval = 16; // reload interval sec
+const interval = 10; // reload interval sec
+const kntBulk = "BULK";
+
+/*class Listener {
+  constructor() {
+    this.sream = null;
+  }
+  addEvent() {}
+  open(url) {
+    this.sream = new EventSource(url);
+  }
+  close() {
+    if (this.sream !== null) {
+      this.sream.close();
+    }
+  }
+} */
 
 // ResponsiveDrawer
 export const Main = (props) => {
@@ -63,12 +81,41 @@ export const Main = (props) => {
   const [error, setError] = useState(null);
 
   // console.log("route=" + route);
-  // console.log("TOKEN=" + JSON.stringify(pld(TOKEN)));
-
   const KANTOR = [
     { id: "BULK", name: "BULK", so: 10 },
     { id: "CITY", name: "CITY", so: 20 },
     { id: "FEYA", name: "FEYA", so: 30 },
+  ];
+
+  const MENU1 = [
+    { route: "home", text: "Home" },
+    { route: "rate", text: "Rates" },
+    { route: "offer", text: "Offers" },
+  ];
+
+  const MENU2 =
+    pld(TOKEN).role === "owner"
+      ? [
+          { route: "vwbalance", text: "Balance" },
+          { route: "vwrate", text: "AvrgRates" },
+          { route: "profit", text: "Profit" },
+          { route: "chart", text: "Chart" },
+          // { route: "sse", text: "SSE test" },
+        ]
+      : [
+          { route: "acntcash", text: "Каса" },
+          { route: "acnt3002", text: "ДепозКом" },
+          { route: "acnt3003", text: "Інкасація" },
+          { route: "acnttrade", text: "TRADE" },
+          { route: "acntdepo", text: "Борги" },
+          { route: "acntowner", text: "Капітал" },
+          // { route: "acnt", text: "" },
+        ];
+
+  const MENU3 = [
+    { route: "vwrate", text: "СерКурси" },
+    { route: "profit", text: "Profit" },
+    { route: "chart", text: "Chart" },
   ];
 
   const sortRates = (v) => {
@@ -78,17 +125,16 @@ export const Main = (props) => {
     };
     return v.sort((a, b) => {
       return a.sortorder < b.sortorder ||
-        (a.sortorder === b.sortorder && kso(a.shop) < kso(b.shop))
+        (a.sortorder === b.sortorder && a.scode < b.scode) ||
+        (a.sortorder === b.sortorder &&
+          a.scode === b.scode &&
+          kso(a.shop) < kso(b.shop))
         ? -1
         : 1;
     });
   };
 
   const sortAcnts = (v) => {
-    const kso = (k) => {
-      let knt = KANTOR.find((i) => i.id === k);
-      return knt !== undefined ? knt.so : "99";
-    };
     return v.sort((a, b) => {
       return a.acntno < b.acntno ||
         (a.acntno === b.acntno && a.cuso < b.cuso) ||
@@ -137,7 +183,7 @@ export const Main = (props) => {
       return <ListAltIcon />;
     } else if (props.icon == "rate") {
       return <PriceChangeIcon />;
-    } else if (props.icon.substring(0, 4) == "acnt") {
+    } else if (props.icon == "vwbalance") {
       return <InboxIcon />;
     } else if (props.icon == "vwrate") {
       return <PriceChangeIcon />;
@@ -157,16 +203,12 @@ export const Main = (props) => {
             load();
           }}
         >
-          ПОНОВИТИ
+          Refresh
         </Button>
       </Toolbar>
       <Divider />
       <List>
-        {[
-          { route: "home", text: "Home" },
-          { route: "rate", text: "Rates" },
-          { route: "offer", text: "Offers" },
-        ].map((v) => (
+        {MENU1.map((v) => (
           <ListItem key={v.text} disablePadding>
             <ListItemButton
               onClick={() => {
@@ -185,36 +227,7 @@ export const Main = (props) => {
       </List>
       <Divider />
       <List>
-        {[
-          { route: "acntcash", text: "Каса" },
-          { route: "acnt3002", text: "ДепозКом" },
-          { route: "acnt3003", text: "Інкасація" },
-          { route: "acnttrade", text: "TRADE" },
-          { route: "acntdepo", text: "Борги" },
-          { route: "acntowner", text: "Капітал" },
-          // { route: "acnt", text: "" },
-        ].map((v) => (
-          <ListItem key={v.text} disablePadding>
-            <ListItemButton
-              onClick={() => {
-                setRoute(v.route);
-              }}
-            >
-              <ListItemIcon>
-                <DrawerMenuIcon icon={v.route} />
-              </ListItemIcon>
-              <ListItemText primary={v.text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-      <List>
-        {[
-          { route: "vwrate", text: "СерКурси" },
-          { route: "profit", text: "Profit" },
-          { route: "chart", text: "Chart" },
-        ].map((v) => (
+        {MENU2.map((v) => (
           <ListItem key={v.text} disablePadding>
             <ListItemButton
               onClick={() => {
@@ -232,6 +245,30 @@ export const Main = (props) => {
           </ListItem>
         ))}
       </List>
+      {pld(TOKEN).role === "kant" && (
+        <>
+          <Divider />
+          <List>
+            {MENU3.map((v) => (
+              <ListItem key={v.text} disablePadding>
+                <ListItemButton
+                  onClick={() => {
+                    if (v.route != route) {
+                      setRepoData([]);
+                    }
+                    setRoute(v.route);
+                  }}
+                >
+                  <ListItemIcon>
+                    <DrawerMenuIcon icon={v.route} />
+                  </ListItemIcon>
+                  <ListItemText primary={v.text} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </>
+      )}
     </div>
   );
 
@@ -239,11 +276,10 @@ export const Main = (props) => {
     if (cur === undefined) {
       return [];
     }
-    return cur.filter((v) => v.id !== "" && v.dmst !== "1");
+    return cur.filter((v) => Number(v.dmst > 1));
   };
 
-  const handleRepo_submit = async (v) => {
-    // console.log(JSON.stringify(v));
+  const handleRepo_submit = async (v) =>
     postData(
       "/reports",
       TOKEN,
@@ -251,7 +287,6 @@ export const Main = (props) => {
       (d) => setRepoData(d),
       (b) => setError(b)
     );
-  };
 
   // eRepoData_refresh
   /*useEffect(() => {
@@ -288,7 +323,7 @@ export const Main = (props) => {
     await postData(
       "/rates",
       TOKEN,
-      { reqid: "sse" },
+      { reqid: "sse2" },
       (d) => setRateData(sortRates(d)),
       (b) => setError(b)
     );
@@ -305,8 +340,42 @@ export const Main = (props) => {
     load();
     const tmr = setInterval(load, 1000 * interval); //
 
+    // SSE test
+    /*const evtSource = new EventSource("http://localhost/api/va1/sse", {
+      withCredentials: true,
+    });
+    if (typeof EventSource !== "undefined") {
+      console.log("Yes! Server-sent events support!");
+      // Some code.....
+    } else {
+      console.log("Sorry! No server-sent events support..");
+    }
+    const evtSource = new EventSource(`${PATH_TO_SERVER}/sse?api_token=${TOKEN}`);
+    evtSource.onopen = () => {
+      console.log("SSE connection to server opened.");
+    };
+    evtSource.onmessage = (event) => {
+      console.log(`message: ${event.data}`);
+    }; */
+
+    /*const evtSource = new EventSource(`${PATH_TO_SSE}?api_token=${TOKEN}`);
+    setTimeout(() => {
+      evtSource.addEventListener("account_stream", (event) => {
+        setAcntData(sortAcnts(JSON.parse(event.data).rslt));
+        // console.log(`account_stream`);
+      });
+      evtSource.addEventListener("offer_stream", (event) => {
+        setOfferData(JSON.parse(event.data).rslt);
+        // console.log(`offer_stream:`);
+      });
+      evtSource.addEventListener("rate_stream", (event) => {
+        setRateData(sortRates(JSON.parse(event.data).rslt));
+        // console.log("rate_stream: ");
+      });
+    }, 5000); */
     return () => {
       clearInterval(tmr);
+      // evtSource.close();
     };
   }, []);
 
@@ -322,7 +391,7 @@ export const Main = (props) => {
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
-          // backgroundColor: "red",
+          // bgcolor: "red",
         }}
       >
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
@@ -353,7 +422,6 @@ export const Main = (props) => {
         sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
         aria-label="mailbox folders"
       >
-        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
         <Drawer
           container={container}
           variant="temporary"
@@ -368,6 +436,7 @@ export const Main = (props) => {
             "& .MuiDrawer-paper": {
               boxSizing: "border-box",
               width: drawerWidth,
+              // bgcolor: "red",
             },
           }}
         >
@@ -401,7 +470,8 @@ export const Main = (props) => {
             acnts={acntData}
             rates={rateData}
             offers={offerData}
-            crntknt={pld(TOKEN).term}
+            kntBulk={kntBulk}
+            pl={pld(TOKEN)}
           ></DashBoard>
         )}
         {route == "rate" && (
@@ -411,17 +481,20 @@ export const Main = (props) => {
                 sqldata={rateData}
                 role={pld(TOKEN).role}
                 kantor={[
+                  { id: "BULK", name: "BULK" },
                   { id: "CITY", name: "CITY" },
                   { id: "FEYA", name: "FEYA" },
                 ]}
                 currency={cur
-                  .filter((v) => v.id !== "" && v.dmst !== "1")
+                  .filter((v) => Number(v.dmst) > 1)
                   .map((v) => {
                     return {
                       id: v.id,
                       name: `${v.chid} ${v.qty == 1 ? "" : v.qty} - ${v.name}`,
                     };
                   })}
+                cursub={cursub}
+                kntBulk={kntBulk}
                 crntknt={rateEditorData.knt} // current kantor
                 // TOKEN={TOKEN}
                 // shop="CITY" //{pld(TOKEN).term}
@@ -435,7 +508,7 @@ export const Main = (props) => {
                       postData(
                         "/rates",
                         TOKEN,
-                        { reqid: "sse" },
+                        { reqid: "ssedb" },
                         (d) => setRateData(sortRates(d)),
                         (b) => setError(b)
                       );
@@ -449,9 +522,9 @@ export const Main = (props) => {
               sqldata={rateData}
               kantor={KANTOR}
               delay="205"
-              shop={pld(TOKEN).term}
+              pl={pld(TOKEN)} //  payload
+              // shop="CITY" //{pld(TOKEN).term}
               fedit={(v) => setRateEditorData(v)}
-              // fedit={() => setRateEditorData({ knt: pld(TOKEN).term })}
               // fisedited={() => {
               //   return rateEditorData !== null;
               // }}
@@ -459,7 +532,7 @@ export const Main = (props) => {
                 await postData(
                   "/rates",
                   TOKEN,
-                  { reqid: "sse" },
+                  { reqid: "ssedb" },
                   (d) => setRateData(sortRates(d)),
                   (b) => setError(b)
                 )
@@ -473,14 +546,18 @@ export const Main = (props) => {
               <Offer
                 sqldata={offerData}
                 delay="210"
-                shop={pld(TOKEN).term}
+                pl={pld(TOKEN)}
                 fedit={handleOffer_edit}
               />
             )}
             {offerEditorData && (
               <OfferEdit
                 offer={offerEditorData}
-                kantor={[{ id: pld(TOKEN).term, name: pld(TOKEN).term }]}
+                kantor={[
+                  { id: "BULK", name: "BULK" },
+                  { id: "CITY", name: "CITY" },
+                  { id: "FEYA", name: "FEYA" },
+                ]}
                 fsubmit={(v) =>
                   postData(
                     "/offers",
@@ -489,7 +566,7 @@ export const Main = (props) => {
                     () => {
                       getData(
                         "/offers",
-                        "reqid=sse",
+                        "reqid=ssedb",
                         (d) => setOfferData(d),
                         (b) => setError(b)
                       );
@@ -505,10 +582,24 @@ export const Main = (props) => {
             )}
           </>
         )}
+        {route == "vwbalance" && <Balance data={acntData} />}
+        {route == "vwrate" && (
+          <RepRate sqldata={repoData} fsubmit={handleRepo_submit} />
+        )}
+        {route == "profit" && (
+          <RepProfit
+            sqldata={repoData}
+            pl={pld(TOKEN)}
+            fsubmit={handleRepo_submit}
+          />
+        )}
+        {route == "chart" && (
+          <ChartProfit sqldata={repoData} fsubmit={handleRepo_submit} />
+        )}
         {route == "acntcash" && (
           <Box sx={{ maxWidth: { md: 360 } }}>
-            <AreaHeader title="Каса" />
             <AcntScore
+              title={"Каса"}
               data={acntData.filter((v) => v.shop === pld(TOKEN).term)}
               balacnt="3000"
             />
@@ -516,8 +607,8 @@ export const Main = (props) => {
         )}
         {route == "acnt3002" && (
           <Box sx={{ maxWidth: { md: 360 } }}>
-            <AreaHeader title="Депозитна комірка" />
             <AcntScore
+              title={"Депозитна комірка"}
               data={acntData.filter((v) => v.shop === pld(TOKEN).term)}
               balacnt="3002"
               onlyShift={false}
@@ -526,20 +617,28 @@ export const Main = (props) => {
         )}
         {route == "acnt3003" && (
           <Box sx={{ maxWidth: { md: 360 } }}>
-            <AreaHeader title="Внутрішня інкасція" />
-            <AcntScore data={acntData} balacnt="3003" onlyShift={false} />
+            <AcntScore
+              title={"Внутрішня інкасція"}
+              data={acntData}
+              balacnt="3003"
+              onlyShift={false}
+            />
           </Box>
         )}
         {route == "acnttrade" && (
           <Box sx={{ maxWidth: { md: 360 } }}>
-            <AreaHeader title="TRADE" />
-            <AcntScore data={acntData} balacnt="35" onlyShift={false} />
+            <AcntScore
+              title={"TRADE"}
+              data={acntData}
+              balacnt="35"
+              onlyShift={false}
+            />
           </Box>
         )}
         {route == "acntdepo" && (
           <Box sx={{ maxWidth: { md: 360 } }}>
-            <AreaHeader title="Борги" />
             <AcntScore
+              title={"Борги"}
               data={acntData.filter((v) => v.shop === pld(TOKEN).term)}
               balacnt="36"
               onlyShift={false}
@@ -548,45 +647,29 @@ export const Main = (props) => {
         )}
         {route == "acntowner" && (
           <Box sx={{ maxWidth: { md: 360 } }}>
-            <AreaHeader title="Капітал" />
             <AcntScore
+              title={"Капітал"}
               data={acntData.filter((v) => v.shop === pld(TOKEN).term)}
               balacnt="42"
               onlyShift={false}
             />
           </Box>
         )}
-        {route == "vwrate" && (
-          <RepRate sqldata={repoData} fsubmit={handleRepo_submit} />
-        )}
-        {route == "profit" && (
-          <RepProfit
-            sqldata={repoData}
-            knt={pld(TOKEN).term}
-            fsubmit={handleRepo_submit}
-          />
-        )}
-        {route == "chart" && (
-          <ChartProfit sqldata={repoData} fsubmit={handleRepo_submit} />
-        )}
+        {/* {route == "sse" && (
+          <Box>
+            SSE test
+            {async (v) =>
+              await postData(
+                "/sse",
+                TOKEN,
+                "",
+                () => {},
+                (b) => setError(b)
+              )
+            }
+          </Box>
+        )} */}
       </Box>
-    </Box>
-  );
-};
-
-const AreaHeader = (props) => {
-  const { title, ...other } = props;
-  return (
-    <Box
-      width="100%"
-      // bgcolor={"lightgrey"}
-      bgcolor={"info.dark"}
-      color={"info.contrastText"}
-      padding={"5px 10px"}
-      sx={{ mb: "0.5rem" }}
-      {...other}
-    >
-      <Typography>{title}</Typography>
     </Box>
   );
 };
