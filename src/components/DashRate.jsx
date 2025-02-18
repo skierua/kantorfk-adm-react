@@ -30,26 +30,6 @@ export const DashRate = (props) => {
     );
     // console.log(a);
     return a;
-
-    if (bulk) {
-      if (curList === undefined || curList.length == 0) {
-        return rates.filter((d) => d.prc === "" && d.shop === kntBulk);
-      } else {
-        return rates.filter(
-          (d) =>
-            curList.indexOf(d.chid) != -1 && d.prc === "" && d.shop === kntBulk
-        );
-      }
-    } else {
-      if (curList === undefined || curList.length == 0) {
-        return rates.filter((d) => d.prc === "" && d.shop !== kntBulk);
-      } else {
-        return rates.filter(
-          (d) =>
-            curList.indexOf(d.chid) != -1 && d.prc === "" && d.shop !== kntBulk
-        );
-      }
-    }
   };
 
   const datasetOLD = () => {
@@ -136,7 +116,7 @@ export const DashRate = (props) => {
           }}
         />
       </Stack>
-      <Tbl data={dataset()} knt={knt} />
+      <Tbl data={dataset()} knt={knt} sub={bulk} />
       {/* <Tbl
         data={rates.filter(
           (v) => v.domestic === "2" && v.prc === "" && v.shop !== kntBulk
@@ -148,7 +128,7 @@ export const DashRate = (props) => {
 };
 
 const Tbl = (props) => {
-  const { data, knt } = props;
+  const { data, knt, sub } = props;
   return (
     <TableContainer>
       <Table size="small" aria-label="a dense table">
@@ -189,7 +169,9 @@ const Tbl = (props) => {
                       {/* {v.scode !== "" && (
                         <Typography variant="caption">{v.sname}</Typography>
                       )} */}
-                      <Typography variant="caption">{v.sname}</Typography>
+                      {sub && (
+                        <Typography variant="caption">{v.sname}</Typography>
+                      )}
                     </Stack>
                   </TableCell>
                   <TableCell align="center">
