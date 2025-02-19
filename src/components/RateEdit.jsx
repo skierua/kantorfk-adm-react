@@ -88,8 +88,8 @@ export const RateEdit = (props) => {
         scode: edcursub,
         pricecode: "", //edbulk ? "bulk" : "",
         qty: edqty,
-        bid: edbid,
-        ask: edask,
+        bid: edbid.replace("+", "%2B"),
+        ask: edask.replace("+", "%2B"),
         tm: new Date().toISOString(),
       };
     });
@@ -211,28 +211,28 @@ export const RateEdit = (props) => {
               id="fld-bid"
               size="small"
               value={edbid}
-              onChange={(e) => setEdbid(e.target.value)}
+              onChange={(e) => setEdbid(e.target.value.replace(",", "."))}
               InputLabelProps={{ shrink: true }}
-              inputProps={{
-                type: "number",
-                step: 0.001,
-                // step: Number(getValues("fld-bid")) < 10 ? 0.001 : 0.01,
-                // inputMode: "decimal",
-              }}
+              // inputProps={{
+              //   type: "number",
+              //   step: 0.001,
+              //   // step: Number(getValues("fld-bid")) < 10 ? 0.001 : 0.01,
+              //   // inputMode: "decimal",
+              // }}
             />
             <TextField
               label="Продаж"
               id="fld-ask"
               size="small"
               value={edask}
-              onChange={(e) => setEdask(e.target.value)}
+              onChange={(e) => setEdask(e.target.value.replace(",", "."))}
               InputLabelProps={{ shrink: true }}
-              inputProps={{
-                type: "number",
-                step: 0.001,
-                // step: Number(getValues("fld-ask")) < 10 ? 0.001 : 0.01,
-                // inputMode: "decimal",
-              }}
+              // inputProps={{
+              //   type: "number",
+              //   step: 0.001,
+              //   // step: Number(getValues("fld-ask")) < 10 ? 0.001 : 0.01,
+              //   // inputMode: "decimal",
+              // }}
             />
           </Stack>
           <Stack direction={"row"} gap={1} justifyContent={"flex-end"}>
