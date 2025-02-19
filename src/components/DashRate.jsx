@@ -170,10 +170,20 @@ const Tbl = (props) => {
                     </Stack>
                   </TableCell>
                   <TableCell align="center">
-                    {Number(v.bid) !== 0 ? Number(v.bid).toPrecision(4) : ""}
+                    {!isNaN(v.bid)
+                      ? Number(v.bid) !== 0
+                        ? Number(v.bid).toPrecision(4)
+                        : ""
+                      : v.bid}
+                    {/* {Number(v.bid) !== 0 ? Number(v.bid).toPrecision(4) : ""} */}
                   </TableCell>
                   <TableCell align="center">
-                    {Number(v.ask) !== 0 ? Number(v.ask).toPrecision(4) : ""}
+                    {!isNaN(v.ask)
+                      ? Number(v.ask) !== 0
+                        ? Number(v.ask).toPrecision(4)
+                        : ""
+                      : v.ask}
+                    {/* {Number(v.ask) !== 0 ? Number(v.ask).toPrecision(4) : ""} */}
                   </TableCell>
                 </TableRow>
               )
