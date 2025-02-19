@@ -15,7 +15,7 @@ import { grey } from "@mui/material/colors";
 import { VkToggle } from "./VkToggle";
 
 export const DashRate = (props) => {
-  const { title, rates, curList, kntBulk, ...other } = props;
+  const { title, rates, kntBulk, ...other } = props;
   const [knt, setKnt] = useState("");
   const [bulk, setBulk] = useState(false);
 
@@ -25,16 +25,16 @@ export const DashRate = (props) => {
     return rates.filter((v) =>
       bulk ? v.shop === kntBulk : v.shop !== kntBulk
     );
-    const a = rates.filter(
-      (d) =>
-        d.prc === "" &&
-        (bulk ? d.shop === kntBulk : d.shop !== kntBulk) &&
-        (curList === undefined || curList.length == 0
-          ? true
-          : curList.indexOf(d.chid) != -1)
-    );
+    // const a = rates.filter(
+    //   (d) =>
+    //     d.prc === "" &&
+    //     (bulk ? d.shop === kntBulk : d.shop !== kntBulk) &&
+    //     (curList === undefined || curList.length == 0
+    //       ? true
+    //       : curList.indexOf(d.chid) != -1)
+    // );
     // console.log(a);
-    return a;
+    // return a;
   };
   // last time change
   const lch = () => {

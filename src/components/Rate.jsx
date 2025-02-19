@@ -122,7 +122,6 @@ export const Rate = (props) => {
                           </Box>
                         </TableCell>
                         <TableCell align="right">
-                          {" "}
                           <Typography>
                             {Number(v.bid) !== 0
                               ? Number(v.bid).toPrecision(4)
@@ -130,8 +129,6 @@ export const Rate = (props) => {
                           </Typography>
                         </TableCell>
                         <TableCell align="right">
-                          {" "}
-                          {/*padding={"checkbox"}*/}
                           <Typography variant="body1">
                             {Number(v.ask) !== 0
                               ? Number(v.ask).toPrecision(4)

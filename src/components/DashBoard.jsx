@@ -45,7 +45,6 @@ export const DashBoard = (props) => {
       <DashRate
         title="Курси"
         rates={rates.filter((v) => v.domestic === "2" || v.shop === kntBulk)}
-        curList={["USD", "EUR", "PLN"]}
         kntBulk={kntBulk}
       />
       {offers.length !== 0 && <DashOffer title="Offers" offers={offers} />}
