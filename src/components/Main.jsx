@@ -500,6 +500,7 @@ export const Main = (props) => {
                 // shop="CITY" //{pld(TOKEN).term}
                 fclose={() => setRateEditorData(null)}
                 fsubmit={async (v) => {
+                  // console.log(v);
                   await postData(
                     "/rates",
                     TOKEN,

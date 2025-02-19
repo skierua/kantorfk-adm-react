@@ -19,7 +19,12 @@ export const DashRate = (props) => {
   const [knt, setKnt] = useState("");
   const [bulk, setBulk] = useState(false);
 
+  // console.log(rates);
+
   const dataset = () => {
+    return rates.filter((v) =>
+      bulk ? v.shop === kntBulk : v.shop !== kntBulk
+    );
     const a = rates.filter(
       (d) =>
         d.prc === "" &&
@@ -30,16 +35,6 @@ export const DashRate = (props) => {
     );
     // console.log(a);
     return a;
-  };
-
-  const datasetOLD = () => {
-    if (curList === undefined || curList.length == 0) {
-      return rates.filter((d) => d.prc === (bulk ? "bulk" : ""));
-    } else {
-      return rates.filter(
-        (d) => curList.indexOf(d.chid) != -1 && d.prc === (bulk ? "bulk" : "")
-      );
-    }
   };
   // last time change
   const lch = () => {
@@ -116,7 +111,7 @@ export const DashRate = (props) => {
           }}
         />
       </Stack>
-      <Tbl data={dataset()} knt={knt} sub={bulk} />
+      <Tbl data={dataset()} knt={knt} bulk={bulk} />
       {/* <Tbl
         data={rates.filter(
           (v) => v.domestic === "2" && v.prc === "" && v.shop !== kntBulk
@@ -128,7 +123,7 @@ export const DashRate = (props) => {
 };
 
 const Tbl = (props) => {
-  const { data, knt, sub } = props;
+  const { data, knt, bulk } = props;
   return (
     <TableContainer>
       <Table size="small" aria-label="a dense table">
@@ -163,13 +158,13 @@ const Tbl = (props) => {
                       alignItems={"flex-end"}
                     >
                       {v.chid}
-                      {knt === "" && (
+                      {knt === "" && !bulk && (
                         <Typography variant="caption">{v.shop}</Typography>
                       )}
                       {/* {v.scode !== "" && (
                         <Typography variant="caption">{v.sname}</Typography>
                       )} */}
-                      {sub && (
+                      {bulk && (
                         <Typography variant="caption">{v.sname}</Typography>
                       )}
                     </Stack>
