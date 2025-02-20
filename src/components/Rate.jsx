@@ -16,13 +16,18 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 
 import { VkToggle } from "./VkToggle";
 
+const USDCODE = "840";
+const USDSUB = "20";
+
 /**
  *
  * @returns
  */
 export const Rate = (props) => {
-  const { sqldata, kantor, pl, fedit, fisedited, frefresh, ...other } = props;
+  const { sqldata, kantor, pl, kntBulk, fedit, fisedited, frefresh, ...other } =
+    props;
   const [knt, setKnt] = useState(pl.term);
+  const [cross, setCross] = useState([]);
 
   // last time change
   const lt = () => {
@@ -40,9 +45,55 @@ export const Rate = (props) => {
       );
   };
 
+  const crossRate = () => {
+    let ret = [];
+    let c1 = "",
+      c2 = "";
+    let v1, v2;
+    // for (let i =0;  i < sqldata.filter((v) => v.domestic === "6").length; ++i){
+    //   console.log()
+    // }
+    sqldata
+      .filter((v) => v.domestic === "6")
+      .forEach((vv) => {
+        v1 = sqldata.find(
+          (c) =>
+            c.atclcode === vv.atclcode.slice(0, 3) &&
+            c.domestic === "2" &&
+            (vv.atclcode.slice(0, 3) === USDCODE ? c.scode === USDSUB : true)
+        );
+        v2 = sqldata.find(
+          (c) =>
+            c.atclcode === vv.atclcode.slice(-3) &&
+            c.domestic === "2" &&
+            (vv.atclcode.slice(-3) === USDCODE ? c.scode === USDSUB : true)
+        );
+        // console.log(v1, v2);
+        if (v1 !== undefined && v2 !== undefined) {
+          ret.push({
+            id: vv.atclcode,
+            chid: vv.chid,
+            bidask: Number(v1.bid) / Number(v2.ask),
+            bidbid: Number(v1.bid) / Number(v2.bid),
+            askbid: Number(v1.ask) / Number(v2.bid),
+            askask: Number(v1.ask) / Number(v2.ask),
+          });
+        }
+        // console.log(ret);
+      });
+    // setCross(ret);
+    return ret;
+  };
+
+  // useEffect(() => {
+  //   setCross(crossRate());
+  //   return () => {};
+  // }, [sqldata]);
+  // crossRate();
+
   return (
     <Box sx={{ maxWidth: { md: 360 } }} {...other}>
-      <Stack gap={1} width="100%">
+      <Stack gap={2} width="100%">
         <Stack
           direction={"row"}
           gap={1}
@@ -57,7 +108,8 @@ export const Rate = (props) => {
             size="small"
             color="primary"
             disabled={
-              knt === "" || (pl.role === "owner" ? false : knt !== pl.term)
+              knt === "" ||
+              (pl.role === "owner" ? false : knt !== pl.term && knt != kntBulk)
             }
             onClick={() => fedit({ knt: knt })}
           >
@@ -148,13 +200,13 @@ export const Rate = (props) => {
             <TableHead>
               <TableRow>
                 <TableCell>
-                  <Typography color={grey[500]}>роздріб</Typography>
+                  <Typography color={grey[500]}>name</Typography>
                 </TableCell>
                 <TableCell align="center">
-                  <Typography color={grey[500]}>купівля</Typography>
+                  <Typography color={grey[500]}>bid</Typography>
                 </TableCell>
                 <TableCell align="right">
-                  <Typography color={grey[500]}>продаж</Typography>
+                  <Typography color={grey[500]}>ask</Typography>
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -216,16 +268,70 @@ export const Rate = (props) => {
             </TableBody>
           </Table>
         </TableContainer>
-        <Box width="100%">
-          <Typography>від {hd(lt())}</Typography>
-        </Box>
-        {/* {error && (
-        <Alert severity="error">
-          <Typography> {`${error}`}</Typography>
-        </Alert>
-      )} */}
+        <TblCross data={crossRate()} />
       </Stack>
     </Box>
+  );
+};
+
+const TblCross = (props) => {
+  const { data } = props;
+  return (
+    <TableContainer>
+      <Table size="small" aria-label="a dense table">
+        <TableHead>
+          <TableRow bgcolor={"#f2f2f2"}>
+            <TableCell colSpan={3}>
+              <Typography>КросКурси по ГУРТ до $біл.</Typography>
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell align="center">
+              <Typography color={grey[500]}>NAME</Typography>
+            </TableCell>
+            <TableCell align="center">
+              <Box>
+                <Typography color={grey[500]}>bid/bid</Typography>
+                <Typography color={grey[500]}>bid/ask</Typography>
+              </Box>
+            </TableCell>
+            <TableCell align="center">
+              <Box>
+                <Typography color={grey[500]}>ask/bid</Typography>
+                <Typography color={grey[500]}>ask/ask</Typography>
+              </Box>
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data.map((v) => {
+            return (
+              <TableRow
+                id={`id-${v.id}`}
+                key={`key-${v.id}`}
+                sx={{
+                  "&:last-child td, &:last-child th": { border: 0 },
+                }}
+              >
+                <TableCell align="left"> {v.chid}</TableCell>
+                <TableCell align="center">
+                  <Box>
+                    <Typography>{v.bidbid.toPrecision(5)}</Typography>
+                    <Typography>{v.bidask.toPrecision(5)}</Typography>
+                  </Box>
+                </TableCell>
+                <TableCell align="center">
+                  <Box>
+                    <Typography>{v.askbid.toPrecision(5)}</Typography>
+                    <Typography>{v.askask.toPrecision(5)}</Typography>
+                  </Box>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 };
 

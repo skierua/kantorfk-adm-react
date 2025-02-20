@@ -500,7 +500,7 @@ export const Main = (props) => {
                 // shop="CITY" //{pld(TOKEN).term}
                 fclose={() => setRateEditorData(null)}
                 fsubmit={async (v) => {
-                  // console.log(v);
+                  console.log(v);
                   await postData(
                     "/rates",
                     TOKEN,
@@ -524,7 +524,7 @@ export const Main = (props) => {
               kantor={KANTOR}
               delay="205"
               pl={pld(TOKEN)} //  payload
-              // shop="CITY" //{pld(TOKEN).term}
+              kntBulk={kntBulk}
               fedit={(v) => setRateEditorData(v)}
               // fisedited={() => {
               //   return rateEditorData !== null;
