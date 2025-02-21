@@ -522,6 +522,7 @@ export const Main = (props) => {
             <Rate
               sqldata={rateData}
               kantor={KANTOR}
+              cur={cur}
               delay="205"
               pl={pld(TOKEN)} //  payload
               kntBulk={kntBulk}

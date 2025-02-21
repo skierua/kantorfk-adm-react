@@ -17,35 +17,28 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import { VkToggle } from "./VkToggle";
 
 const USDCODE = "840";
-const USDSUB = "20";
+const USDSUB = "20"; // for old $
 
 /**
  *
  * @returns
  */
 export const Rate = (props) => {
-  const { sqldata, kantor, pl, kntBulk, fedit, fisedited, frefresh, ...other } =
-    props;
+  const {
+    sqldata,
+    kantor,
+    cur,
+    pl,
+    kntBulk,
+    fedit,
+    fisedited,
+    frefresh,
+    ...other
+  } = props;
   const [knt, setKnt] = useState(pl.term);
-  const [cross, setCross] = useState([]);
 
-  // last time change
-  const lt = () => {
-    return sqldata
-      .filter((v) => v.shop === knt && v.prc !== "bulk")
-      .reduce(
-        (t, v) =>
-          (t =
-            t < v.bidtm.substring(0, 10)
-              ? v.bidtm.substring(0, 10)
-              : t < v.asktm.substring(0, 10)
-                ? v.asktm.substring(0, 10)
-                : t),
-        ""
-      );
-  };
-
-  const crossRate = () => {
+  // console.log(cur);
+  const crossRate = (sub = "") => {
     let ret = [];
     let c1 = "",
       c2 = "";
@@ -53,25 +46,25 @@ export const Rate = (props) => {
     // for (let i =0;  i < sqldata.filter((v) => v.domestic === "6").length; ++i){
     //   console.log()
     // }
-    sqldata
-      .filter((v) => v.domestic === "6")
+    cur
+      .filter((v) => v.dmst === "6")
       .forEach((vv) => {
         v1 = sqldata.find(
           (c) =>
-            c.atclcode === vv.atclcode.slice(0, 3) &&
+            c.atclcode === vv.id.slice(0, 3) &&
             c.domestic === "2" &&
-            (vv.atclcode.slice(0, 3) === USDCODE ? c.scode === USDSUB : true)
+            (vv.id.slice(0, 3) === USDCODE ? c.scode === sub : true)
         );
         v2 = sqldata.find(
           (c) =>
-            c.atclcode === vv.atclcode.slice(-3) &&
+            c.atclcode === vv.id.slice(-3) &&
             c.domestic === "2" &&
-            (vv.atclcode.slice(-3) === USDCODE ? c.scode === USDSUB : true)
+            (vv.id.slice(-3) === USDCODE ? c.scode === sub : true)
         );
         // console.log(v1, v2);
         if (v1 !== undefined && v2 !== undefined) {
           ret.push({
-            id: vv.atclcode,
+            id: vv.id,
             chid: vv.chid,
             bidask: Number(v1.bid) / Number(v2.ask),
             bidbid: Number(v1.bid) / Number(v2.bid),
@@ -268,21 +261,22 @@ export const Rate = (props) => {
             </TableBody>
           </Table>
         </TableContainer>
-        <TblCross data={crossRate()} />
+        <TblCross data={crossRate(USDSUB)} title={"($100 білий)"} />
+        <TblCross data={crossRate()} title={"($100 синій)"} />
       </Stack>
     </Box>
   );
 };
 
 const TblCross = (props) => {
-  const { data } = props;
+  const { data, title } = props;
   return (
     <TableContainer>
       <Table size="small" aria-label="a dense table">
         <TableHead>
           <TableRow bgcolor={"#f2f2f2"}>
             <TableCell colSpan={3}>
-              <Typography>КросКурси по ГУРТ до $біл.</Typography>
+              <Typography>КросКурси по ГУРТ {title}</Typography>
             </TableCell>
           </TableRow>
           <TableRow>
@@ -333,6 +327,22 @@ const TblCross = (props) => {
       </Table>
     </TableContainer>
   );
+};
+
+// last time change
+const lt = (data, knt) => {
+  return data
+    .filter((v) => v.shop === knt && v.prc !== "bulk")
+    .reduce(
+      (t, v) =>
+        (t =
+          t < v.bidtm.substring(0, 10)
+            ? v.bidtm.substring(0, 10)
+            : t < v.asktm.substring(0, 10)
+              ? v.asktm.substring(0, 10)
+              : t),
+      ""
+    );
 };
 
 //  humanDate
