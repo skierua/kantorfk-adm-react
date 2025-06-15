@@ -38,11 +38,11 @@ export const DashOffer = (props) => {
         <Typography>{title}</Typography>
       </Box>
       <Stack direction={"row"} gap={1}>
-        <Box sx={{ justifyItems: "center", width: "50%" }}>
+        <Box sx={{ justifyItems: "center" }}>
           <Typography color={grey[500]}>куплю</Typography>
           <Tbl data={dataset("bid")} />
         </Box>
-        <Box sx={{ justifyItems: "center", width: "50%" }}>
+        <Box sx={{ justifyItems: "center" }}>
           <Typography color={grey[500]}>продам</Typography>
           <Tbl data={dataset("ask")} />
         </Box>
@@ -52,9 +52,9 @@ export const DashOffer = (props) => {
 };
 
 const Tbl = (props) => {
-  const { data } = props;
+  const { data, ...other } = props;
   return (
-    <TableContainer>
+    <TableContainer {...other}>
       <Table size="small" aria-label="a dense table">
         <TableBody>
           {data.map((v) => {

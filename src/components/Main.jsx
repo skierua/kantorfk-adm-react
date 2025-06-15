@@ -17,10 +17,10 @@ import ListAltIcon from "@mui/icons-material/ListAlt";
 import PriceChangeIcon from "@mui/icons-material/PriceChange";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import BarChartIcon from "@mui/icons-material/BarChart";
-import MailIcon from "@mui/icons-material/Mail";
+// import MailIcon from "@mui/icons-material/Mail";
 import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
+// import Typography from "@mui/material/Typography";
 
 import RefreshIcon from "@mui/icons-material/Refresh";
 
@@ -28,23 +28,18 @@ import { AcntScore } from "./AcntScore";
 import { Balance } from "./Balance.jsx";
 import { Rate } from "./Rate.jsx";
 import { DashBoard } from "./DashBoard.jsx";
-// import { DashBoard as AdmDash } from "./adm/DashBoard.jsx";
-// import { DashBoard as KntDash } from "./knt/DashBoard.jsx";
 import { Offer } from "./Offer.jsx";
 import { OfferEdit } from "./OfferEdit";
 import { RateEdit } from "./RateEdit";
 import { RepRate } from "./RepRate.jsx";
 import { RepProfit } from "./RepProfit.jsx";
-// import { RepAcnt } from "./adm/RepAcnt.jsx";
 import { ChartProfit } from "./ChartProfit.jsx";
-// import { DashRate } from "./DashRate";
 
 // import { subscribe, unsubscribe } from "../../events";
 import { PATH_TO_SSE, getData, postData, pld } from "../driver";
-// import { CD_KANTOR } from "../../constData";
 
 const drawerWidth = 180;
-const interval = 10; // reload interval sec
+const interval = 15; // reload interval sec
 const kntBulk = "BULK";
 
 /*class Listener {
@@ -79,6 +74,8 @@ export const Main = (props) => {
   const [offerEditorData, setOfferEditorData] = useState(null);
   const [repoData, setRepoData] = useState([]);
   const [error, setError] = useState(null);
+
+  let tmrUpd;
 
   // console.log("route=" + route);
   const KANTOR = [
@@ -288,16 +285,7 @@ export const Main = (props) => {
       (b) => setError(b)
     );
 
-  // eRepoData_refresh
-  /*useEffect(() => {
-    subscribe("eRepoData_refresh", (v) => {
-      // console.log(JSON.stringify(v.detail));
-      postData("/reports", v.detail, (sqldata) => setRepoData(sqldata));
-    });
-    return () => unsubscribe("eRepoData_refresh", () => {});
-  }); */
-
-  const loadCur = async () => {
+  /* const loadCur = async () => {
     await getData(
       "/currencies",
       "reqid=sel",
@@ -310,9 +298,10 @@ export const Main = (props) => {
       (d) => setCursub(d),
       (b) => setError(b)
     );
-  };
+  }; */
 
   const load = async () => {
+    // console.log(`#74h MAIN data loaded`);
     await postData(
       "/accounts",
       TOKEN,
@@ -336,9 +325,20 @@ export const Main = (props) => {
   };
 
   useEffect(() => {
-    loadCur();
-    load();
-    const tmr = setInterval(load, 1000 * interval); //
+    getData(
+      "/currencies",
+      "reqid=sel",
+      (d) => setCur(d),
+      (b) => setError(b)
+    );
+    getData(
+      "/currencies",
+      "reqid=selsub",
+      (d) => setCursub(d),
+      (b) => setError(b)
+    );
+    // loadCur();
+    // const tmr = setInterval(load, 1000 * interval); //
 
     // SSE test
     /*const evtSource = new EventSource("http://localhost/api/va1/sse", {
@@ -374,8 +374,42 @@ export const Main = (props) => {
       });
     }, 5000); */
     return () => {
-      clearInterval(tmr);
+      // clearInterval(tmr);
       // evtSource.close();
+    };
+  }, []);
+
+  useEffect(() => {
+    // console.log(`#34hn useEffect RATES started`);
+    tmrUpd = setTimeout(async function loadData() {
+      // console.log(`#34hn render GETDATA`);
+      load();
+      tmrUpd = setTimeout(loadData, 1000 * interval); // (*)
+    }, 0);
+    return () => {
+      clearTimeout(tmrUpd);
+    };
+  }, []);
+
+  useEffect(() => {
+    const onVisibility_changed = () => {
+      if (document.visibilityState === "visible") {
+        tmrUpd = setTimeout(async function loadData() {
+          // console.log(`#904u visibility GETDATA`);
+          load();
+          tmrUpd = setTimeout(loadData, 1000 * interval); // (*)
+        }, 0);
+        // console.log(`#e8y useEffect turns visibile `);
+      } else {
+        clearTimeout(tmrUpd);
+        // console.log(`#9wj useEffect turns HIDDEN `);
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibility_changed);
+
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility_changed);
     };
   }, []);
 

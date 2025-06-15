@@ -22,11 +22,11 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 export const VkToggle = (props) => {
   const { data, dflt, limit, label, allowAll, fcb, ...other } = props;
   const [crnt, setCrnt] = useState(dflt ?? "");
-  //   console.log(JSON.stringify(data));
   const dlimit = limit ?? 5; // default limit
   const dallowAll = true; // default allowAll
 
-  //   console.log(`${data} ${dflt} ${limit ?? 5}`);
+  // console.log(JSON.stringify(data));
+  // console.log(`#a7gj VkToggle dflt=[${dflt}]`);
   useEffect(() => {
     // console.log(`#257 Offer/useEffect started`);
     if (fcb !== undefined) {
