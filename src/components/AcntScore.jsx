@@ -35,6 +35,7 @@ export const AcntScore = (props) => {
   const [knt, setKnt] = useState("");
   const [acnt, setAcnt] = useState("");
 
+  // console.log(`#742h AcntScore RENDER balacnt=${balacnt} acnt=${acnt}`);
   // last  change
   const lch = (d) => {
     return d.reduce(
@@ -148,9 +149,11 @@ export const AcntScore = (props) => {
   };
 
   useEffect(() => {
-    // console.log(`#257 AdmOffer/useEffect started`);
+    // console.log(`#257 AcntScore/useEffect started acnt=${acnt}`);
+    setKnt("");
+    setAcnt("");
     return () => {};
-  }, []);
+  }, [balacnt]);
 
   return (
     <Box
