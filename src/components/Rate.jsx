@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 // import { useForm } from "react-hook-form";
 import { Box, Stack, Typography } from "@mui/material";
+import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
@@ -9,14 +10,17 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import Tooltip from "@mui/material/Tooltip";
 import { grey } from "@mui/material/colors";
 
 import EditIcon from "@mui/icons-material/Edit";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import ShareIcon from "@mui/icons-material/Share";
 
 import { VkToggle } from "./VkToggle";
 
 const USDCODE = "840";
+const USDCHAR = "USD";
 const USDSUB = "20"; // for old $
 
 /**
@@ -30,9 +34,11 @@ export const Rate = (props) => {
     cur,
     pl,
     kntBulk,
+    kntDflt = "CITY", // default kantor
     fedit,
     fisedited,
     frefresh,
+    fpublish, // publish rates
     ...other
   } = props;
   const [knt, setKnt] = useState(pl.term);
@@ -78,6 +84,99 @@ export const Rate = (props) => {
     return ret;
   };
 
+  const onPbl_clicked = () => {
+    console.log("knt=" + knt);
+    const rate = (v) => {
+      return v === "" ? "--.--" : Number(v).toPrecision(4); //Number(v).toFixed(2);
+    };
+    const qty = (q) => {
+      return q === "1" ? "" : `${q} `;
+    };
+    const cursub = (v, cur, shop) => {
+      if (cur !== USDCHAR || shop !== kntBulk) return "";
+      if (v === "20") return "білий";
+      else if (v === "50") return "шмельц";
+      return "синій";
+    };
+    const flag = (v) => {
+      if (v === "USD") return "🇺🇸";
+      if (v === "EUR") return "🇪🇺";
+      if (v === "PLN") return "🇲🇨";
+      if (v === "CZK") return "🇨🇿";
+      return v; // for other currencies
+    };
+    let res = "";
+    const vrate = sqldata
+      .filter((v) => v.shop === knt && v.domestic === "2")
+      .map((v) => {
+        return {
+          shop: v.shop,
+          chid: v.chid,
+          bid: v.bid,
+          ask: v.ask,
+          rqty: v.rqty,
+          scode: v.scode,
+        };
+      });
+
+    if (vrate.length !== 0) {
+      res = (knt === kntBulk ? "ГУРТ" : "РОЗДРІБ") + "\n";
+      res += vrate.reduce((acc, v) => {
+        acc +=
+          rate(v.bid) +
+          " " +
+          qty(v.rqty) +
+          flag(v.chid) +
+          " " +
+          rate(v.ask, v.chid) +
+          " " +
+          cursub(v.scode, v.chid, v.shop) +
+          "\n";
+        return acc;
+      }, "");
+    }
+
+    const vcros = sqldata
+      .filter((v) => v.shop === knt && v.domestic === "6")
+      .map((v) => {
+        return {
+          shop: v.shop,
+          chid: v.chid,
+          bid: v.bid,
+          ask: v.ask,
+          rqty: v.rqty,
+          scode: v.scode,
+        };
+      });
+
+    if (vcros.length !== 0) {
+      res += res === "" ? "" : "\n";
+      res += "КОНВЕРТАЦІЯ" + "\n";
+      res += vcros.reduce((acc, v) => {
+        acc +=
+          rate(v.bid) +
+          " " +
+          // qty(v.rqty) +
+          flag(v.chid) +
+          " " +
+          rate(v.ask, v.chid) +
+          // " " +
+          // cursub(v.scode, v.chid) +
+          "\n";
+        return acc;
+      }, "");
+    }
+
+    // if (knt === kntBulk && res !== "") {
+    res += "\n☎️ 096 001 36 00\n";
+    res += "🌐 kantorfk.com\n";
+    // }
+
+    // console.log(res);
+
+    if (res !== "") fpublish({ msg: res });
+  };
+
   // useEffect(() => {
   //   setCross(crossRate());
   //   return () => {};
@@ -86,6 +185,7 @@ export const Rate = (props) => {
 
   return (
     <Box sx={{ maxWidth: { md: 360 } }} {...other}>
+      <Box></Box>
       <Stack gap={2} width="100%">
         <Stack
           direction={"row"}
@@ -93,21 +193,48 @@ export const Rate = (props) => {
           width="100%"
           sx={{ justifyContent: "space-between" }}
         >
-          <IconButton size="small" color="primary" onClick={() => frefresh()}>
-            <RefreshIcon />
-          </IconButton>
+          <Tooltip title="Поновити">
+            <IconButton size="small" color="primary" onClick={() => frefresh()}>
+              <RefreshIcon />
+            </IconButton>
+          </Tooltip>
           <VkToggle data={kantor} dflt={knt} fcb={(v) => setKnt(v)} />
-          <IconButton
+          <Tooltip title="Редагувати" variant="soft">
+            <IconButton
+              size="small"
+              color="primary"
+              disabled={
+                knt === "" ||
+                (pl.role === "owner"
+                  ? false
+                  : knt !== pl.term && knt != kntBulk)
+              }
+              onClick={() => fedit({ knt: knt })}
+            >
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Поширити" variant="soft">
+            <IconButton
+              size="small"
+              color="primary"
+              disabled={knt === "" || pl.role !== "owner"}
+              onClick={() => onPbl_clicked()}
+            >
+              <ShareIcon />
+            </IconButton>
+          </Tooltip>
+          {/* <Button
+            variant="contained"
             size="small"
-            color="primary"
-            disabled={
-              knt === "" ||
-              (pl.role === "owner" ? false : knt !== pl.term && knt != kntBulk)
-            }
-            onClick={() => fedit({ knt: knt })}
+            disabled={knt === "" || pl.role !== "owner"}
+            onClick={
+              () => onPbl_clicked()
+              // onPbl_clicked({ reqid: "rates", shop: kntBulk, class: "2" })
+            } // publish rates
           >
-            <EditIcon />
-          </IconButton>
+            Publish
+          </Button> */}
         </Stack>
         {sqldata.filter(
           (v) => (knt === "" || knt === v.shop) && v.prc === "bulk"
@@ -339,8 +466,8 @@ const lt = (data, knt) => {
           t < v.bidtm.substring(0, 10)
             ? v.bidtm.substring(0, 10)
             : t < v.asktm.substring(0, 10)
-              ? v.asktm.substring(0, 10)
-              : t),
+            ? v.asktm.substring(0, 10)
+            : t),
       ""
     );
 };

@@ -64,6 +64,7 @@ function App(props) {
           .then((res) => res.json())
           .then((jresp) => {
             // console.log(jresp.token);
+            // console.log(jresp);
             const [th, tp, ts] = jresp.token.split(".");
             const pl = JSON.parse(window.atob(tp));
             setToken(jresp.token);

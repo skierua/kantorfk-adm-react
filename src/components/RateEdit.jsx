@@ -22,7 +22,7 @@ export const RateEdit = (props) => {
     kantor,
     currency,
     cursub,
-    kntBulk,
+    kntBulk = "BULK", // bulk kantor
     crntknt,
     fclose,
     fsubmit,
