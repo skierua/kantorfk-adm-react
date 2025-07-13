@@ -36,11 +36,18 @@ import { RepProfit } from "./RepProfit.jsx";
 import { ChartProfit } from "./ChartProfit.jsx";
 
 // import { subscribe, unsubscribe } from "../../events";
-import { PATH_TO_SSE, getData, postData, pld } from "../driver";
+import {
+  PATH_TO_SERVER,
+  getData,
+  postData,
+  publishSocial,
+  pld,
+} from "../driver";
 
 const drawerWidth = 180;
 const interval = 15; // reload interval sec
 const kntBulk = "BULK";
+const kntDflt = "CITY";
 
 /*class Listener {
   constructor() {
@@ -447,7 +454,7 @@ export const Main = (props) => {
               maxWidth: { xs: 160, md: 240 },
             }}
             alt="Logo."
-            src="./img/logo-kfk.png"
+            src={`${PATH_TO_SERVER}/img/logo-kfk.png`}
           />
         </Toolbar>
       </Box>
@@ -530,11 +537,9 @@ export const Main = (props) => {
                 cursub={cursub}
                 kntBulk={kntBulk}
                 crntknt={rateEditorData.knt} // current kantor
-                // TOKEN={TOKEN}
-                // shop="CITY" //{pld(TOKEN).term}
                 fclose={() => setRateEditorData(null)}
                 fsubmit={async (v) => {
-                  console.log(v);
+                  // console.log(v);
                   await postData(
                     "/rates",
                     TOKEN,
@@ -560,6 +565,7 @@ export const Main = (props) => {
               delay="205"
               pl={pld(TOKEN)} //  payload
               kntBulk={kntBulk}
+              kntDflt={kntDflt}
               fedit={(v) => setRateEditorData(v)}
               // fisedited={() => {
               //   return rateEditorData !== null;
@@ -573,6 +579,26 @@ export const Main = (props) => {
                   (b) => setError(b)
                 )
               }
+              // fpublish={async (v) => {
+              //   // console.log(v);
+              //   await postData(
+              //     "/pbl",
+              //     TOKEN,
+              //     v,
+              //     () => {},
+              //     (b) => setError(b)
+              //   );
+              // }}
+              fpublish={async (v) => {
+                // console.log(v);
+                await publishSocial(v, (r, e) => {
+                  if (e === null) {
+                    // console.log(r);
+                  } else {
+                    setError(e);
+                  }
+                });
+              }}
             />
           </Stack>
         )}
