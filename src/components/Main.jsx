@@ -36,13 +36,7 @@ import { RepProfit } from "./RepProfit.jsx";
 import { ChartProfit } from "./ChartProfit.jsx";
 
 // import { subscribe, unsubscribe } from "../../events";
-import {
-  PATH_TO_SERVER,
-  getData,
-  postData,
-  publishSocial,
-  pld,
-} from "../driver";
+import { getData, postData, publishSocial, pld } from "../driver";
 
 const drawerWidth = 180;
 const interval = 15; // reload interval sec
@@ -284,13 +278,13 @@ export const Main = (props) => {
   };
 
   const handleRepo_submit = async (v) =>
-    postData(
-      "/reports",
-      TOKEN,
-      v,
-      (d) => setRepoData(d),
-      (b) => setError(b)
-    );
+    postData("/reports", TOKEN, v, (e, d) => {
+      if (e === null) {
+        setRepoData(d);
+      } else {
+        setError(e);
+      }
+    });
 
   /* const loadCur = async () => {
     await getData(
@@ -309,41 +303,44 @@ export const Main = (props) => {
 
   const load = async () => {
     // console.log(`#74h MAIN data loaded`);
-    await postData(
-      "/accounts",
-      TOKEN,
-      { reqid: "sse" },
-      (d) => setAcntData(sortAcnts(d)),
-      (b) => setError(b)
-    );
-    await postData(
-      "/rates",
-      TOKEN,
-      { reqid: "sse2" },
-      (d) => setRateData(sortRates(d)),
-      (b) => setError(b)
-    );
-    await getData(
-      "/offers",
-      "reqid=sse",
-      (d) => setOfferData(d),
-      (b) => setError(b)
-    );
+    await postData("/accounts", TOKEN, { reqid: "sse" }, (e, d) => {
+      if (e === null) {
+        setAcntData(sortAcnts(d));
+      } else {
+        setError(e);
+      }
+    });
+    await postData("/rates", TOKEN, { reqid: "sse2" }, (e, d) => {
+      if (e === null) {
+        setRateData(sortRates(d));
+      } else {
+        setError(e);
+      }
+    });
+    await getData("/offers", "reqid=sse", (e, d) => {
+      if (e === null) {
+        setOfferData(d);
+      } else {
+        setError(e);
+      }
+    });
   };
 
   useEffect(() => {
-    getData(
-      "/currencies",
-      "reqid=sel",
-      (d) => setCur(d),
-      (b) => setError(b)
-    );
-    getData(
-      "/currencies",
-      "reqid=selsub",
-      (d) => setCursub(d),
-      (b) => setError(b)
-    );
+    getData("/currencies", "reqid=sel", (e, d) => {
+      if (e === null) {
+        setCur(d);
+      } else {
+        setError(e);
+      }
+    });
+    getData("/currencies", "reqid=selsub", (e, d) => {
+      if (e === null) {
+        setCursub(d);
+      } else {
+        setError(e);
+      }
+    });
     // loadCur();
     // const tmr = setInterval(load, 1000 * interval); //
 
@@ -454,7 +451,7 @@ export const Main = (props) => {
               maxWidth: { xs: 160, md: 240 },
             }}
             alt="Logo."
-            src={`${PATH_TO_SERVER}/img/logo-kfk.png`}
+            src={`/img/logo-kfk.png`}
           />
         </Toolbar>
       </Box>
@@ -540,21 +537,21 @@ export const Main = (props) => {
                 fclose={() => setRateEditorData(null)}
                 fsubmit={async (v) => {
                   // console.log(v);
-                  await postData(
-                    "/rates",
-                    TOKEN,
-                    v,
-                    () => {
-                      postData(
-                        "/rates",
-                        TOKEN,
-                        { reqid: "ssedb" },
-                        (d) => setRateData(sortRates(d)),
-                        (b) => setError(b)
-                      );
-                    },
-                    (b) => setError(b)
-                  );
+                  await postData("/rates", TOKEN, v, (e, d) => {
+                    if (e === null) {
+                      // () => {
+                      postData("/rates", TOKEN, { reqid: "ssedb" }, (e, d) => {
+                        if (e === null) {
+                          setRateData(sortRates(d));
+                        } else {
+                          setError(e);
+                        }
+                      });
+                      // };
+                    } else {
+                      setError(e);
+                    }
+                  });
                 }}
               />
             )}
@@ -571,24 +568,14 @@ export const Main = (props) => {
               //   return rateEditorData !== null;
               // }}
               frefresh={async (v) =>
-                await postData(
-                  "/rates",
-                  TOKEN,
-                  { reqid: "ssedb" },
-                  (d) => setRateData(sortRates(d)),
-                  (b) => setError(b)
-                )
+                await postData("/rates", TOKEN, { reqid: "ssedb" }, (e, d) => {
+                  if (e === null) {
+                    setRateData(sortRates(d));
+                  } else {
+                    setError(e);
+                  }
+                })
               }
-              // fpublish={async (v) => {
-              //   // console.log(v);
-              //   await postData(
-              //     "/pbl",
-              //     TOKEN,
-              //     v,
-              //     () => {},
-              //     (b) => setError(b)
-              //   );
-              // }}
               fpublish={async (v) => {
                 // console.log(v);
                 await publishSocial(v, (r, e) => {
@@ -621,21 +608,22 @@ export const Main = (props) => {
                   { id: "FEYA", name: "FEYA" },
                 ]}
                 fsubmit={(v) =>
-                  postData(
-                    "/offers",
-                    TOKEN,
-                    v,
-                    () => {
-                      getData(
-                        "/offers",
-                        "reqid=ssedb",
-                        (d) => setOfferData(d),
-                        (b) => setError(b)
-                      );
+                  postData("/offers", TOKEN, v, (e, d) => {
+                    if (e === null) {
+                      // () => {
+                      getData("/offers", "reqid=ssedb", (e, d) => {
+                        if (e === null) {
+                          setOfferData(d);
+                        } else {
+                          setError(e);
+                        }
+                      });
                       setOfferEditorData(null);
-                    },
-                    (b) => setError(b)
-                  )
+                      // };
+                    } else {
+                      setError(e);
+                    }
+                  })
                 }
                 fclose={() => setOfferEditorData(null)}
                 fcurrency={foreignCurency}

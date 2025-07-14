@@ -85,7 +85,7 @@ export const Rate = (props) => {
   };
 
   const onPbl_clicked = () => {
-    console.log("knt=" + knt);
+    // console.log("knt=" + knt);
     const rate = (v) => {
       return v === "" ? "--.--" : Number(v).toPrecision(4); //Number(v).toFixed(2);
     };

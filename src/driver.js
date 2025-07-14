@@ -1,13 +1,8 @@
-// for local testings
-// const PATH_TO_SSE = "http://localhost/api/v4/sse"; // for local testings
 // const PATH_TO_SERVER = "http://localhost"; // for local testings
 
-// for deployment
-// const PATH_TO_SERVER = "/api/v3"; // for deployment
-// const PATH_TO_SSE = "/v3/sse"; // for deployment
-const PATH_TO_SERVER = "https://kantorfk.com"; // for deployment
-const PATH_TO_API = "/api/v4"; // for deployment
-const PATH_TO_SSE = "https://kantorfk.com/api/v4/sse"; // for deployment
+const PATH_TO_SERVER = process.env.REACT_APP_API_URL; // for deployment
+const PATH_TO_API = process.env.REACT_APP_API_VER;
+// const PATH_TO_SSE = `${PATH_TO_SERVER}/sse`; // for deployment
 
 /**
  * payload
@@ -24,25 +19,34 @@ function pld(t) {
 
 /**
  *
- * @param {*} path
- * @param {*} token
- * @param {*} jdata
- * @returns
+ * @param {string} path
+ * @param {string} query
+ * @param {*} callback for success
+ * @param {*} error callback fo error
  */
-const postFetch = async (path, token, jdata) => {
-  const resp = fetch(
-    `${PATH_TO_SERVER}${PATH_TO_API}${path}?api_token=${token}`,
-    {
-      method: "post",
-      mode: "cors",
-      headers: {
-        "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-      },
-      body: "data=" + JSON.stringify(jdata),
-      // body: `key=${MN_SID}&usr=${CRNTUSER.name}&query=${vquery}`,
-    }
-  );
-  return resp;
+const getData = async (path, query, callback) => {
+  if (PATH_TO_SERVER === undefined || PATH_TO_API === undefined) {
+    console.log("URL or API is not defined in environment variables.");
+    callback("URL or API is not defined in environment variables.", null);
+    return;
+  }
+  if (query !== undefined && query !== "") {
+    query = "?" + query;
+  }
+  fetch(`${PATH_TO_SERVER}${PATH_TO_API}${path}${query}`, {
+    method: "get",
+    mode: "cors",
+    headers: {
+      "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+    },
+  })
+    .then((resp) => resp.json())
+    .then((jresp) => {
+      callback(null, jresp.rslt);
+    })
+    .catch((err) => {
+      callback(err.message, null);
+    });
 };
 
 /**
@@ -53,7 +57,7 @@ const postFetch = async (path, token, jdata) => {
  * @param {*} callback for success
  * @param {*} error callback fo error
  */
-const postData = async (path, token, jdata, callback, error) => {
+const postData = async (path, token, jdata, callback) => {
   // console.log("postData started" + JSON.stringify(data));
   // return;
   fetch(`${PATH_TO_SERVER}${PATH_TO_API}${path}?api_token=${token}`, {
@@ -68,22 +72,32 @@ const postData = async (path, token, jdata, callback, error) => {
     .then((resp) => resp.json())
     .then((jresp) => {
       // console.log(path + ": " + JSON.stringify(jresp));
-      error(null);
-      callback(jresp.rslt);
+      callback(null, jresp.rslt);
     })
     .catch((err) => {
       console.log("EE:" + path + "/ " + err + " data=" + JSON.stringify(jdata));
-      error(err.message);
+      callback(err.message, null);
     });
 };
 
 const publishSocial = async (str, callback) => {
   // console.log("postData started" + JSON.stringify(data));
   // return;
-  const tgBotApiToken = "7215364754:AAGSWCc-ZYfliB1B8Qg_jLaAJi2tDOawSFA";
-  const tgChatId = "-1002137535073"; // '-1002137535073' - channel id
+  const tgBotApiToken = process.env.REACT_APP_TG_BOT_API_TOKEN; // telegram bot API token
+  const tgChatId = process.env.REACT_APP_TG_CHART_ID; // telegram chat ID
+  // console.log("tgBotApiToken: " + tgBotApiToken);
+  // console.log("tgChatId: " + tgChatId);
+  if (tgBotApiToken === undefined || tgChatId === undefined) {
+    console.log(
+      "Telegram bot API token or chat ID is not defined in environment variables."
+    );
+    callback(
+      "Telegram bot API token or chat ID is not defined in environment variables.",
+      null
+    );
+    return;
+  }
   const tgQuery = encodeURI(`chat_id=${tgChatId}&text=${str.msg}`);
-  const tgUrl = `https://api.telegram.org/bot${tgBotApiToken}/sendMessage?${tgQuery}`;
 
   fetch(`https://api.telegram.org/bot${tgBotApiToken}/sendMessage?${tgQuery}`, {
     method: "post",
@@ -126,30 +140,25 @@ const getFetch = async (path, jdata) => {
 
 /**
  *
- * @param {string} path
- * @param {string} query
- * @param {*} callback for success
- * @param {*} error callback fo error
+ * @param {*} path
+ * @param {*} token
+ * @param {*} jdata
+ * @returns
  */
-const getData = async (path, query, callback, error) => {
-  if (query !== undefined && query !== "") {
-    query = "?" + query;
-  }
-  fetch(`${PATH_TO_SERVER}${PATH_TO_API}${path}${query}`, {
-    method: "get",
-    mode: "cors",
-    headers: {
-      "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-    },
-  })
-    .then((resp) => resp.json())
-    .then((jresp) => {
-      callback(jresp.rslt);
-      error(null);
-    })
-    .catch((err) => {
-      error(err.message);
-    });
+const postFetch = async (path, token, jdata) => {
+  const resp = fetch(
+    `${PATH_TO_SERVER}${PATH_TO_API}${path}?api_token=${token}`,
+    {
+      method: "post",
+      mode: "cors",
+      headers: {
+        "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+      },
+      body: "data=" + JSON.stringify(jdata),
+      // body: `key=${MN_SID}&usr=${CRNTUSER.name}&query=${vquery}`,
+    }
+  );
+  return resp;
 };
 
 /**
@@ -185,15 +194,12 @@ function parse(raw) {
 }
 
 export {
-  PATH_TO_SERVER,
-  PATH_TO_API,
-  PATH_TO_SSE,
   pld,
-  postFetch,
-  getFetch,
+  // postFetch,
+  // getFetch,
+  authFetch,
+  getData,
   postData,
   publishSocial,
-  getData,
-  authFetch,
   parse,
 };
