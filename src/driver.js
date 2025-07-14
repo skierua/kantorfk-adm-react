@@ -80,8 +80,8 @@ const postData = async (path, token, jdata, callback, error) => {
 const publishSocial = async (str, callback) => {
   // console.log("postData started" + JSON.stringify(data));
   // return;
-  const tgBotApiToken = "7215364754:AAGSWCc-ZYfliB1B8Qg_jLaAJi2tDOawSFA";
-  const tgChatId = "-1002137535073"; // '-1002137535073' - channel id
+  const tgBotApiToken = "111111111111111";
+  const tgChatId = "-2222222222222"; // '-2222222222' - channel id
   const tgQuery = encodeURI(`chat_id=${tgChatId}&text=${str.msg}`);
   const tgUrl = `https://api.telegram.org/bot${tgBotApiToken}/sendMessage?${tgQuery}`;
 
