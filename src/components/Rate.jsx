@@ -38,7 +38,7 @@ export const Rate = (props) => {
     fedit,
     fisedited,
     frefresh,
-    fpublish, // publish rates
+    // fpublish, // publish rates
     ...other
   } = props;
   const [knt, setKnt] = useState(pl.term);
@@ -174,7 +174,7 @@ export const Rate = (props) => {
 
     // console.log(res);
 
-    if (res !== "") fpublish({ msg: res });
+    // if (res !== "") fpublish({ msg: res });
   };
 
   // useEffect(() => {
@@ -214,7 +214,7 @@ export const Rate = (props) => {
               <EditIcon />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Поширити" variant="soft">
+          {/* <Tooltip title="Поширити" variant="soft">
             <IconButton
               size="small"
               color="primary"
@@ -223,7 +223,7 @@ export const Rate = (props) => {
             >
               <ShareIcon />
             </IconButton>
-          </Tooltip>
+          </Tooltip> */}
           {/* <Button
             variant="contained"
             size="small"

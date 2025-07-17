@@ -36,13 +36,18 @@ import { RepProfit } from "./RepProfit.jsx";
 import { ChartProfit } from "./ChartProfit.jsx";
 
 // import { subscribe, unsubscribe } from "../../events";
-import { getData, postData, publishSocial, pld } from "../driver";
+import { getData, postData, pld } from "../driver";
+import { publish } from "../drvSocial.js";
 
 const drawerWidth = 180;
 const interval = 15; // reload interval sec
 const kntBulk = "BULK";
 const kntDflt = "CITY";
-
+// const PUBLISH_SOCIAL_TIMEOUT = 5000; //  minutes
+const PUBLISH_SOCIAL_TIMEOUT = 1000 * 60 * 2; //  2 minutes
+let RATE_PUBLISH_BULK_2 = null; // publish timeout for BULK 2
+let RATE_PUBLISH_BULK_6 = null; // publish timeout for BULK 6
+let RATE_PUBLISH_DFLT_2 = null; // publish timeout for kntDflt 2
 /*class Listener {
   constructor() {
     this.sream = null;
@@ -300,6 +305,85 @@ export const Main = (props) => {
       (b) => setError(b)
     );
   }; */
+  const socialSniffer = (v) => {
+    const maxDate = (d, shop, code) => {
+      return d
+        .filter((r) => {
+          return r.shop === shop && r.domestic === code;
+        })
+        .reduce((acc, r) => (acc = r.bidtm > acc ? r.bidtm : acc), "");
+    };
+    let oldMax = "",
+      newMax = "";
+    let vrates = v.filter((r) => r.shop === kntBulk && r.domestic === "2");
+    oldMax = maxDate(rateData, kntBulk, "2");
+    newMax = vrates.reduce(
+      (acc, r) => (acc = r.bidtm > acc ? r.bidtm : acc),
+      ""
+    );
+    if (newMax > oldMax) {
+      // publish BULK data for main
+      // console.log(`oldMax=${oldMax} newMax=${newMax}`);
+      clearTimeout(RATE_PUBLISH_BULK_2);
+      // console.log(
+      //   `publish ${kntBulk} data for main RATE_PUBLISH=${RATE_PUBLISH_BULK_2}`
+      // );
+      RATE_PUBLISH_BULK_2 = setTimeout(
+        publish,
+        PUBLISH_SOCIAL_TIMEOUT,
+        vrates,
+        (r, e) => {
+          if (e === null) {
+            setError(e);
+          }
+        }
+      );
+    }
+    vrates = v.filter((r) => r.shop === kntBulk && r.domestic === "6");
+    oldMax = maxDate(rateData, kntBulk, "6");
+    newMax = vrates.reduce(
+      (acc, r) => (acc = r.bidtm > acc ? r.bidtm : acc),
+      ""
+    );
+    if (newMax > oldMax) {
+      clearTimeout(RATE_PUBLISH_BULK_6);
+      RATE_PUBLISH_BULK_6 = setTimeout(
+        publish,
+        PUBLISH_SOCIAL_TIMEOUT,
+        vrates,
+        (r, e) => {
+          if (e === null) {
+            setError(e);
+          }
+        },
+        "КОНВЕРТАЦІЯ",
+        ""
+      );
+    }
+    vrates = v.filter((r) => r.shop === kntDflt && r.domestic === "2");
+    vrates.forEach((v) => {
+      v.sname = "";
+    });
+    oldMax = maxDate(rateData, kntDflt, "2");
+    newMax = vrates.reduce(
+      (acc, r) => (acc = r.bidtm > acc ? r.bidtm : acc),
+      ""
+    );
+    if (newMax > oldMax) {
+      clearTimeout(RATE_PUBLISH_DFLT_2);
+      RATE_PUBLISH_DFLT_2 = setTimeout(
+        publish,
+        PUBLISH_SOCIAL_TIMEOUT,
+        vrates,
+        (r, e) => {
+          if (e === null) {
+            setError(e);
+          }
+        },
+        "РОЗДРІБ"
+      );
+    }
+  };
 
   const load = async () => {
     // console.log(`#74h MAIN data loaded`);
@@ -542,6 +626,9 @@ export const Main = (props) => {
                       // () => {
                       postData("/rates", TOKEN, { reqid: "ssedb" }, (e, d) => {
                         if (e === null) {
+                          if ((pld(TOKEN).role = "owner")) {
+                            socialSniffer(d);
+                          }
                           setRateData(sortRates(d));
                         } else {
                           setError(e);
@@ -576,16 +663,16 @@ export const Main = (props) => {
                   }
                 })
               }
-              fpublish={async (v) => {
-                // console.log(v);
-                await publishSocial(v, (r, e) => {
-                  if (e === null) {
-                    // console.log(r);
-                  } else {
-                    setError(e);
-                  }
-                });
-              }}
+              // fpublish={async (v) => {
+              // console.log(v);
+              // await socialPublish(v, (r, e) => {
+              //   if (e === null) {
+              //     // console.log(r);
+              //   } else {
+              //     setError(e);
+              //   }
+              // });
+              // }}
             />
           </Stack>
         )}
