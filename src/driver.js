@@ -80,45 +80,6 @@ const postData = async (path, token, jdata, callback) => {
     });
 };
 
-const publishSocial = async (str, callback) => {
-  // console.log("postData started" + JSON.stringify(data));
-  // return;
-  const tgBotApiToken = process.env.REACT_APP_TG_BOT_API_TOKEN; // telegram bot API token
-  const tgChatId = process.env.REACT_APP_TG_CHART_ID; // telegram chat ID
-
-  // console.log("tgBotApiToken: " + tgBotApiToken);
-  // console.log("tgChatId: " + tgChatId);
-  if (tgBotApiToken === undefined || tgChatId === undefined) {
-    console.log(
-      "Telegram bot API token or chat ID is not defined in environment variables."
-    );
-    callback(
-      "Telegram bot API token or chat ID is not defined in environment variables.",
-      null
-    );
-    return;
-  }
-  const tgQuery = encodeURI(`chat_id=${tgChatId}&text=${str.msg}`);
-
-  fetch(`https://api.telegram.org/bot${tgBotApiToken}/sendMessage?${tgQuery}`, {
-    method: "post",
-    mode: "cors",
-    headers: {
-      "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-    },
-    // body: "data=" + JSON.stringify(jdata),
-  })
-    .then((resp) => resp.json())
-    .then((jresp) => {
-      // console.log(path + ": " + JSON.stringify(jresp));
-      callback(null, jresp.rslt);
-    })
-    .catch((err) => {
-      // console.log("EE:" + path + "/ " + err + " data=" + JSON.stringify(jdata));
-      callback(err.message, null);
-    });
-};
-
 /**
  *
  * @param {string} path
@@ -201,6 +162,5 @@ export {
   authFetch,
   getData,
   postData,
-  publishSocial,
   parse,
 };
