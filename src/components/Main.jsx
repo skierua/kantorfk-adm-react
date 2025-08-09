@@ -306,6 +306,7 @@ export const Main = (props) => {
     );
   }; */
   const socialSniffer = (v) => {
+    return;
     const maxDate = (d, shop, code) => {
       return d
         .filter((r) => {
@@ -333,7 +334,7 @@ export const Main = (props) => {
         PUBLISH_SOCIAL_TIMEOUT,
         vrates,
         (r, e) => {
-          if (e === null) {
+          if (e !== null) {
             setError(e);
           }
         }
@@ -626,9 +627,9 @@ export const Main = (props) => {
                       // () => {
                       postData("/rates", TOKEN, { reqid: "ssedb" }, (e, d) => {
                         if (e === null) {
-                          if ((pld(TOKEN).role = "owner")) {
-                            socialSniffer(d);
-                          }
+                          // if ((pld(TOKEN).role = "owner")) {
+                          //   socialSniffer(d);
+                          // }
                           setRateData(sortRates(d));
                         } else {
                           setError(e);
@@ -663,16 +664,27 @@ export const Main = (props) => {
                   }
                 })
               }
-              // fpublish={async (v) => {
-              // console.log(v);
-              // await socialPublish(v, (r, e) => {
-              //   if (e === null) {
-              //     // console.log(r);
-              //   } else {
-              //     setError(e);
-              //   }
-              // });
-              // }}
+              fpublish={async (v, titles) => {
+                // console.log(v);
+                publish(
+                  v,
+                  (r, e) => {
+                    if (e !== null) {
+                      setError(e);
+                    }
+                  },
+                  titles.header,
+                  titles.footer
+                );
+
+                // await socialPublish(v, (r, e) => {
+                //   if (e === null) {
+                //     // console.log(r);
+                //   } else {
+                //     setError(e);
+                //   }
+                // });
+              }}
             />
           </Stack>
         )}

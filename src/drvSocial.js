@@ -49,6 +49,7 @@ const publish = async (
   str += `${footer}\n`;
   // console.log("social driver \n" + str);
   // return;
+
   //   const tgBotApiToken = process.env.REACT_APP_TG_BOT_API_TOKEN; // telegram bot API token
   //   const tgChatId = process.env.REACT_APP_TG_CHART_ID; // telegram chat ID
 
